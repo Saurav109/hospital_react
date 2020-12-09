@@ -1,10 +1,8 @@
-import react from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { logIn, logOut, increase, decrease } from "../../redux/actions";
 import { useState, useEffect } from "react";
 import firebase from "../../fire";
 import { withSnackbar } from "notistack";
-import { render } from "@testing-library/react";
 
 function HomeView() {
   const isLogged = useSelector((state) => state.isLogged);
@@ -60,40 +58,5 @@ function Home(props) {
       return <h1>not logged in</h1>;
   }
 }
-
-// class Home extends react.Component {
-//   constructor(props) {
-//     super(props);
-//     this.state = {
-//       isLoggedIn: 0,
-//     };
-//   }
-
-//   componentDidMount() {
-//     firebase.auth().onAuthStateChanged((user) => {
-//       if (user) {
-//         let uid = user.uid;
-//         console.log(`user logged in, user id: ${uid}`);
-//         this.props.enqueueSnackbar("user logged in");
-//         this.setState({ isLoggedIn: 1 });
-//       } else {
-//         console.log("user not logged in");
-//         this.props.enqueueSnackbar("user not logged in");
-//         this.setState({ isLoggedIn: -1 });
-//       }
-//     });
-//   }
-
-//   render() {
-//     switch (this.state.isLoggedIn) {
-//       case 0:
-//         return <h1>loading...</h1>;
-//       case 1:
-//         return <Home />;
-//       case -1:
-//         return <h1>not logged in</h1>;
-//     }
-//   }
-// }
 
 export default withSnackbar(Home);
