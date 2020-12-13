@@ -21,3 +21,15 @@ export const decrease = () => {
     type: "DEINCREASE",
   };
 };
+
+export const startLoading = () => {
+  return {
+    type: "START",
+  };
+};
+
+export const stopLoading = () => {
+  return {
+    type: "STOP",
+  };
+};
