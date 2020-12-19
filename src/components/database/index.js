@@ -37,3 +37,7 @@ export const setupProfileVal = (values, then) => {
     then(errorMessage);
   }
 };
+
+export const getDiseasesListRef = firebase
+  .firestore()
+  .doc("/root/dev/symptoms/symptomList");

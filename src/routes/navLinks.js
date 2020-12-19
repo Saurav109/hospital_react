@@ -7,25 +7,24 @@ import Divider from "@material-ui/core/Divider";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
-
+import { makeStyles, useTheme, fade } from "@material-ui/core/styles";
 import List from "@material-ui/core/List";
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import React from "react";
 
 function ListItemLink(props) {
   const { icon, primary, to } = props;
-
   const CustomLink = React.useMemo(
     () =>
       React.forwardRef((linkProps, ref) => (
-        <Link ref={ref} to={to} {...linkProps} />
+        <Link  ref={ref} to={to} {...linkProps} />
       )),
     [to]
   );
 
   return (
     <li>
-      <ListItem button component={CustomLink}>
+      <ListItem  button component={CustomLink}>
         <ListItemIcon>{icon}</ListItemIcon>
         <ListItemText primary={primary} />
       </ListItem>
