@@ -22,7 +22,7 @@ function Login(props) {
   const loginCall = () => {
     firebase
       .auth()
-      .createUserWithEmailAndPassword(email, password)
+      .signInWithEmailAndPassword(email, password)
       .then((user) => {
         props.enqueueSnackbar("Login successfull", {
           variant: "success",
