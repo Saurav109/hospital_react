@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 import NotFound from "../components/notFound/NotFound";
 import Home from "../components/home/";
 import React from "react";
@@ -38,6 +38,11 @@ import general from "../components/general/index";
 import healthTips from "../components/healthTips/index";
 import coronaTest from "../components/coronaTest/index";
 import NavLinks from "./navLinks";
+import { useSelector, useDispatch } from "react-redux";
+import { showDialogue, hideDialogue } from "../redux/actions";
+import { logoutFirebase } from "../components/database/";
+import { withRouter } from "react-router-dom";
+import Profile from "../components/profile/index";
 
 const drawerWidth = 260;
 
@@ -164,8 +169,8 @@ const useStyles = makeStyles((theme) => ({
     },
   },
 }));
-
-export default function AfterLoginRoute() {
+export const AfterLoginRouteView = withRouter((props) => {
+  const dispatch = useDispatch();
   const classes = useStyles();
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
@@ -201,6 +206,24 @@ export default function AfterLoginRoute() {
     setMobileMoreAnchorEl(event.currentTarget);
   };
 
+  const logoutButton = () => {
+    handleMenuClose();
+    dispatch(
+      showDialogue({
+        title: "Logout!",
+        subtitle: "Are you sure you want to logout?",
+        handleOnConfirm: () => {
+          props.history.push("/");
+          dispatch(hideDialogue());
+          logoutFirebase();
+        },
+        handleOnCancle: () => {
+          dispatch(hideDialogue());
+        },
+      })
+    );
+  };
+
   const menuId = "primary-search-account-menu";
   const renderMenu = (
     <Menu
@@ -212,8 +235,10 @@ export default function AfterLoginRoute() {
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
-      <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-      <MenuItem onClick={handleMenuClose}>My account</MenuItem>
+      <MenuItem component={Link} to="/profile" onClick={handleMenuClose}>
+        Profile
+      </MenuItem>
+      <MenuItem onClick={logoutButton}>Logout</MenuItem>
     </Menu>
   );
 
@@ -259,129 +284,133 @@ export default function AfterLoginRoute() {
   );
 
   return (
-    <Router>
-      <div className={classes.root}>
-        <CssBaseline />
-        <AppBar
-          position="fixed"
-          className={clsx(classes.appBar, {
-            [classes.appBarShift]: open,
-          })}
-        >
-          <Toolbar>
-            <IconButton
-              color="inherit"
-              aria-label="open drawer"
-              onClick={handleDrawerOpen}
-              edge="start"
-              className={clsx(classes.menuButton, {
-                [classes.hide]: open,
-              })}
-            >
-              <MenuIcon />
-            </IconButton>
-            <Typography variant="h6" noWrap>
-              Deases prediction
-            </Typography>
+    <div className={classes.root}>
+      <CssBaseline />
+      <AppBar
+        position="fixed"
+        className={clsx(classes.appBar, {
+          [classes.appBarShift]: open,
+        })}
+      >
+        <Toolbar>
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            onClick={handleDrawerOpen}
+            edge="start"
+            className={clsx(classes.menuButton, {
+              [classes.hide]: open,
+            })}
+          >
+            <MenuIcon />
+          </IconButton>
+          <Typography variant="h6" noWrap>
+            Deases prediction
+          </Typography>
 
-            <div className={classes.search}>
-              <div className={classes.searchIcon}>
-                <SearchIcon />
-              </div>
-              <InputBase
-                placeholder="Search…"
-                classes={{
-                  root: classes.inputRoot,
-                  input: classes.inputInput,
-                }}
-                inputProps={{ "aria-label": "search" }}
-              />
+          <div className={classes.search}>
+            <div className={classes.searchIcon}>
+              <SearchIcon />
             </div>
-            <div className={classes.grow} />
-            <div className={classes.sectionDesktop}>
-              <IconButton aria-label="show 4 new mails" color="inherit">
-                <Badge badgeContent={4} color="secondary">
-                  <MailIcon />
-                </Badge>
-              </IconButton>
-              <IconButton
-                aria-label="show 17 new notifications"
-                color="inherit"
-              >
-                <Badge badgeContent={17} color="secondary">
-                  <NotificationsIcon />
-                </Badge>
-              </IconButton>
-              <IconButton
-                edge="end"
-                aria-label="account of current user"
-                aria-controls={menuId}
-                aria-haspopup="true"
-                onClick={handleProfileMenuOpen}
-                color="inherit"
-              >
-                <AccountCircle />
-              </IconButton>
-            </div>
-            <div className={classes.sectionMobile}>
-              <IconButton
-                aria-label="show more"
-                aria-controls={mobileMenuId}
-                aria-haspopup="true"
-                onClick={handleMobileMenuOpen}
-                color="inherit"
-              >
-                <MoreIcon />
-              </IconButton>
-            </div>
-          </Toolbar>
-        </AppBar>
-        {renderMobileMenu}
-        {renderMenu}
-        <Drawer
-          variant="permanent"
-          className={clsx(classes.drawer, {
-            [classes.drawerOpen]: open,
-            [classes.drawerClose]: !open,
-          })}
-          classes={{
-            paper: clsx({
-              [classes.drawerOpen]: open,
-              [classes.drawerClose]: !open,
-            }),
-          }}
-        >
-          <div className={classes.toolbar}>
-            <IconButton onClick={handleDrawerClose}>
-              {theme.direction === "rtl" ? (
-                <ChevronRightIcon />
-              ) : (
-                <ChevronLeftIcon />
-              )}
+            <InputBase
+              placeholder="Search…"
+              classes={{
+                root: classes.inputRoot,
+                input: classes.inputInput,
+              }}
+              inputProps={{ "aria-label": "search" }}
+            />
+          </div>
+          <div className={classes.grow} />
+          <div className={classes.sectionDesktop}>
+            <IconButton aria-label="show 4 new mails" color="inherit">
+              <Badge badgeContent={4} color="secondary">
+                <MailIcon />
+              </Badge>
+            </IconButton>
+            <IconButton aria-label="show 17 new notifications" color="inherit">
+              <Badge badgeContent={17} color="secondary">
+                <NotificationsIcon />
+              </Badge>
+            </IconButton>
+            <IconButton
+              edge="end"
+              aria-label="account of current user"
+              aria-controls={menuId}
+              aria-haspopup="true"
+              onClick={handleProfileMenuOpen}
+              color="inherit"
+            >
+              <AccountCircle />
             </IconButton>
           </div>
-          <Divider />
-          <NavLinks type="ADMIN" />
-        </Drawer>
-        <main className={classes.content}>
-          <div className={classes.toolbar} />
+          <div className={classes.sectionMobile}>
+            <IconButton
+              aria-label="show more"
+              aria-controls={mobileMenuId}
+              aria-haspopup="true"
+              onClick={handleMobileMenuOpen}
+              color="inherit"
+            >
+              <MoreIcon />
+            </IconButton>
+          </div>
+        </Toolbar>
+      </AppBar>
+      {renderMobileMenu}
+      {renderMenu}
+      <Drawer
+        variant="permanent"
+        className={clsx(classes.drawer, {
+          [classes.drawerOpen]: open,
+          [classes.drawerClose]: !open,
+        })}
+        classes={{
+          paper: clsx({
+            [classes.drawerOpen]: open,
+            [classes.drawerClose]: !open,
+          }),
+        }}
+      >
+        <div className={classes.toolbar}>
+          <IconButton onClick={handleDrawerClose}>
+            {theme.direction === "rtl" ? (
+              <ChevronRightIcon />
+            ) : (
+              <ChevronLeftIcon />
+            )}
+          </IconButton>
+        </div>
+        <Divider />
+        <NavLinks type="ADMIN" />
+      </Drawer>
+      <main className={classes.content}>
+        <div className={classes.toolbar} />
 
-          <Switch>
-            <Route component={Home} path="/" exact />
-            <Route component={diseasPrediction} path="/diseasPrediction" />
-            <Route component={searchDoc} path="/searchDoc" />
-            <Route component={searchAmbulance} path="/searchAmbulance" />
-            <Route component={adminProfile} path="/adminProfile" />
+        <Switch>
+          <Route component={Home} path="/" exact />
+          <Route component={diseasPrediction} path="/diseasPrediction" />
+          <Route component={searchDoc} path="/searchDoc" />
+          <Route component={searchAmbulance} path="/searchAmbulance" />
+          <Route component={adminProfile} path="/adminProfile" />
 
-            <Route component={expert} path="/expert" />
-            <Route component={general} path="/general" />
-            <Route component={healthTips} path="/healthTips" />
-            <Route component={coronaTest} path="/coronaTest" />
+          <Route component={expert} path="/expert" />
+          <Route component={general} path="/general" />
+          <Route component={healthTips} path="/healthTips" />
+          <Route component={coronaTest} path="/coronaTest" />
+          <Route component={Profile} path="/profile" />
 
-            <Route component={NotFound} />
-          </Switch>
-        </main>
-      </div>
+          <Route component={NotFound} />
+        </Switch>
+      </main>
+    </div>
+  );
+});
+function AfterLoginRoute(props) {
+  return (
+    <Router>
+      <AfterLoginRouteView />
     </Router>
   );
 }
+export default AfterLoginRoute;

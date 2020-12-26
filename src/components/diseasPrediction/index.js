@@ -6,6 +6,7 @@ import {
   allDiseasesSymptomRef,
   getAllDiseasesSymptomArray,
   getSelectAbleSymptomArray,
+  defaultMessage,
 } from "../database";
 import Chip from "@material-ui/core/Chip";
 import { withSnackbar } from "notistack";
@@ -21,11 +22,19 @@ const useStyles = makeStyles((theme) => ({
     margin: theme.spacing(1),
   },
 }));
+
 class DiseasPrediction extends React.Component {
   allDiseases = [];
   constructor(props) {
     super(props);
-    this.state = { patientSymptoms: [], selectableDiseases: [] };
+    this.state = {
+      patientSymptoms: [],
+      selectableDiseases: [],
+      messages: defaultMessage,
+      details: "",
+    };
+
+    // initial get all diseases array
     getAllDiseasesSymptomArray((array) => {
       this.allDiseases = array;
       this.setState({ selectableDiseases: this.allDiseases });
@@ -34,29 +43,45 @@ class DiseasPrediction extends React.Component {
 
   addSymptom = (val) => {
     if (val) {
-      this.setState({ patientSymptoms: [...this.state.patientSymptoms, val] });
-
-      getSelectAbleSymptomArray(
-        this.allDiseases,
-        this.sortedRef(),
-        (selectable) => {
-          console.log("selectable array: ", selectable);
-        }
-      );
-    } else {
-      this.props.enqueueSnackbar("please select a symptom", {
-        variant: "error",
-      });
+      var newPatientSymptoms = [...this.state.patientSymptoms, val];
+      this.updateValues(newPatientSymptoms);
     }
   };
-  sortedRef = () => {
+
+  updateValues = (patientSymptoms) => {
+    getSelectAbleSymptomArray(
+      this.allDiseases,
+      patientSymptoms,
+      this.sortedRef(patientSymptoms),
+      (messages, details) => {
+        if (messages) {
+          this.setState({ messages: messages });
+        } else {
+          this.setState({ messages: defaultMessage });
+        }
+
+        if (details) {
+          this.setState({ details: details });
+        } else {
+          this.setState({ details: "" });
+        }
+      },
+      (newSelectable) => {
+        this.setState({
+          selectableDiseases: newSelectable,
+          patientSymptoms: patientSymptoms,
+        });
+      }
+    );
+  };
+  sortedRef = (patientSymptoms) => {
     var tmpRef = allDiseasesSymptomRef;
-    if (this.state.patientSymptoms.length == 0) {
+    if (patientSymptoms.length == 0) {
       return tmpRef;
     }
     const symptomArray = [];
 
-    this.state.patientSymptoms.map((item) => {
+    patientSymptoms.map((item) => {
       symptomArray.push(item.value);
     });
 
@@ -65,6 +90,19 @@ class DiseasPrediction extends React.Component {
     }
 
     return tmpRef;
+  };
+
+  handleDelete = (value) => {
+    const newPatientSymptoms = this.state.patientSymptoms.filter(function (
+      obj
+    ) {
+      return obj.value !== value;
+    });
+
+    this.updateValues(newPatientSymptoms);
+    this.props.enqueueSnackbar("symptom deleted", {
+      variant: "success",
+    });
   };
   render() {
     const classes = makeStyles((theme) => ({
@@ -100,8 +138,12 @@ class DiseasPrediction extends React.Component {
         ))}
 
         <Typography className={classes.text} variant="h6" component="h2">
-          Select a symptom from bellow
+          {this.state.messages}
         </Typography>
+        <Typography className={classes.text} variant="body1" component="h2">
+          {this.state.details}
+        </Typography>
+
         <TextField select label="Symptoms" variant="filled" required fullWidth>
           {this.state.selectableDiseases.map((option) => (
             <MenuItem
@@ -118,18 +160,6 @@ class DiseasPrediction extends React.Component {
       </div>
     );
   }
-  handleDelete = (value) => {
-    const newPatientSymptoms = this.state.patientSymptoms.filter(function (
-      obj
-    ) {
-      return obj.value !== value;
-    });
-
-    this.setState({ patientSymptoms: newPatientSymptoms });
-    this.props.enqueueSnackbar("symptom deleted", {
-      variant: "success",
-    });
-  };
 }
 
 export default withSnackbar(DiseasPrediction);

@@ -16,30 +16,12 @@ import BeforeLoginRoute from "./routes/BeforeLoginRoute";
 import { useSelector, useDispatch } from "react-redux";
 import { startLoading, stopLoading } from "./redux/actions";
 import IconView from "./utils/IconView";
+import MyDialogue from "./components/myDialogue/index";
 
-// const store = createStore(allReducer);
-
-// // Can still subscribe to the store
-// store.subscribe(() => console.log(store.getState()));
-
-// function App() {
-//   return (
-//     <Provider store={store}>
-//       <SnackbarProvider maxSnack={3}>
-//         <Router>
-//           <Switch>
-//             <Route component={Details} path="/Details" />
-//             <Route component={Home} path="/" exact />
-//             <Route component={NotFound} />
-//           </Switch>
-//         </Router>
-//       </SnackbarProvider>
-//     </Provider>
-//   );
-// }
 function App(props) {
   const [isLoggedIn, setLoggedIn] = useState(0);
   const isLoading = useSelector((state) => state.isLoading);
+  const isDialogueVisible = useSelector((state) => state.isDialogueVisible);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -53,6 +35,8 @@ function App(props) {
         setLoggedIn(1);
       } else {
         console.log("user not logged in");
+        // history.push("/");
+        // props.history.push("/");
         setLoggedIn(-1);
       }
     });
@@ -69,9 +53,18 @@ function App(props) {
     }
   };
 
+  console.log("isDialogueVisible: ", isDialogueVisible);
+
   return (
     <div>
       {isLoading && <LoadingView />}
+      <MyDialogue
+        isShowing={isDialogueVisible.isVisible}
+        title={isDialogueVisible.title}
+        subtitle={isDialogueVisible.subtitle}
+        handleConfirm={isDialogueVisible.handleOnConfirm}
+        handleClose={isDialogueVisible.handleOnCancle}
+      />
       {renderRoute()}
     </div>
   );

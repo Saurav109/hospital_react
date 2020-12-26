@@ -1,0 +1,6 @@
+.addImage {
+  display: none;
+}
+.addImageContainer:hover .addImage {
+  display: block;
+}
